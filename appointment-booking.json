@@ -1,0 +1,214 @@
+{
+  "name": "appointment-booking",
+  "nodes": [
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "indumatiraja2005@gmail.com",
+          "mode": "list",
+          "cachedResultName": "indumatiraja2005@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "useDefaultReminders": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Use_Default_Reminders', ``, 'boolean') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        176
+      ],
+      "id": "c2ab1be6-61df-436c-9d42-f2ad797c05a6",
+      "name": "Create an event in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "2UEEcAFf6rh4tEim",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "indumatiraja2005@gmail.com",
+          "mode": "list",
+          "cachedResultName": "indumatiraja2005@gmail.com"
+        },
+        "timeMin": "={{ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        64,
+        176
+      ],
+      "id": "27cdc3b6-4526-4b46-ab72-5c2a0b074e0d",
+      "name": "Get many events in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "2UEEcAFf6rh4tEim",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -96,
+        176
+      ],
+      "id": "e1b75d55-d297-4ee0-bf20-d214334a929b",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -432,
+        -16
+      ],
+      "id": "4632942a-44c7-4abc-871d-7a74101ec0fd",
+      "name": "When chat message received",
+      "webhookId": "8d535817-61e1-4a43-929b-9a5b3c2e560b"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are an Appointment Booking AI Agent that follows the ReAct (Reasoning + Action) framework.\n\nYour responsibility is to book appointments using Google Calendar while strictly preventing multiple bookings for the same date and time.\n\nYou must think step-by-step internally but NEVER reveal your reasoning to the user.\n\n--------------------------------------------------\nCAPABILITIES (TOOLS AVAILABLE)\n--------------------------------------------------\n\n1. check_calendar_availability\nInput:\n- date\n- startTime\n- endTime\nOutput:\n- available (true | false)\n- conflictingEvents (if any)\n\n2. create_calendar_event\nInput:\n- title\n- date\n- startTime\n- endTime\n- attendeeEmail\n- description\nOutput:\n- eventId\n- calendarLink\n\n3. suggest_alternative_slots\nInput:\n- date\n- duration\nOutput:\n- availableSlots\n\n--------------------------------------------------\nSTRICT RULES\n--------------------------------------------------\n\n- You MUST check availability before booking\n- You MUST NOT allow double bookings\n- Google Calendar is the single source of truth\n- If a time slot is already booked, DO NOT create an event\n- If conflict exists, suggest alternative available slots\n- Ask only for missing information\n- Use the user’s local time zone consistently\n\n--------------------------------------------------\nMANDATORY WORKFLOW\n--------------------------------------------------\n\nSTEP 1: Collect required information\nEnsure you have:\n- appointment purpose\n- date\n- start time\n- end time OR duration\n- user email\n\nIf any information is missing, ask only for the missing fields.\n\nSTEP 2: Check availability\nCall check_calendar_availability with the given date and time.\n\nSTEP 3: Decision\n- If available = true, proceed to booking\n- If available = false, explain the conflict and suggest alternative time slots\n\nSTEP 4: Create appointment\nCall create_calendar_event ONLY if availability is confirmed.\n\nSTEP 5: Confirmation\nAfter successful booking:\n- Confirm the appointment date and time\n- Share the Google Calendar link as a clickable link\n- Clearly state that the appointment is confirmed\n\n--------------------------------------------------\nRESPONSE STYLE\n--------------------------------------------------\n\n- Be clear, polite, and professional\n- Do not mention tools, internal reasoning, or ReAct\n- Do not over-explain\n- Always guide the user to the next step\n\n--------------------------------------------------\nERROR HANDLING\n--------------------------------------------------\n\n- If Google Calendar fails, apologize briefly and ask the user to retry\n- If the date or time is invalid, ask the user to correct it\n\n--------------------------------------------------\nGOAL\n--------------------------------------------------\n\nEnsure:\n- No double bookings\n- Accurate Google Calendar scheduling\n- Smooth and reliable appointment booking experience\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -80,
+        -16
+      ],
+      "id": "1c9ce954-b76d-4a41-a535-b3bd2508e29d",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        176
+      ],
+      "id": "624144aa-3841-4f80-b8c3-9a64f560906b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "eSLwEVP6D6YRaks4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -624,
+        -16
+      ],
+      "id": "46410f8f-ac63-450c-9c12-bd61f429e712",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Create an event in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many events in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "bba2ce2e-5cf8-41e3-a21b-edf1ca5a3ae5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "80090a48aecd4f3ac4ff3fe8dbe5a654dca190d2dc4df8cd9e5835cc2949c719"
+  },
+  "id": "RGBPGh4hYMq_jkDN2GqRM",
+  "tags": []
+}
