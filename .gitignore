@@ -1,4 +1,5 @@
 credentials.json
-credientials.json
-.n8n/
+credentials
 .env
+ren.env
+.n8n/
